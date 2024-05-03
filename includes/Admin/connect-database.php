@@ -76,12 +76,9 @@
 
                 // Check if query executed successfully
                 if ($create_remote_table_query === TRUE) {
-                    if( $table_name == 'wc_order_stats') {
-//                        $alter_table_query = "ALTER TABLE {$wpdb->prefix}{$table_name} ADD COLUMN $table_extra_column VARCHAR(255)";
-                    } else {
-                        $alter_table_query = "ALTER TABLE {$wpdb->prefix}{$table_name} ADD COLUMN $table_extra_column VARCHAR(255)";
-                    }
+                    $alter_table_query = "ALTER TABLE {$table_name} ADD COLUMN $table_extra_column VARCHAR(255)";
                     $alter_table_result = $remote_connection->query($alter_table_query);
+                    echo $alter_table_query;
                     echo "<div class='updated'><p>Success: Table created successfully.</p></div>";
                 } else {
                     echo "Error creating table in remote database: " . $remote_connection->error;
