@@ -26,6 +26,6 @@ class Menu {
      * Callback function to display the plugin page.
      */
     public function plugin_page() {
-        echo "hello";
+        require_once 'connect-database.php';
     }
 }
