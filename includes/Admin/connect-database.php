@@ -41,37 +41,52 @@
         } else {
             echo "<div class='updated'><p>Success: Connected to the remote database.</p></div>";
 
-            global $wpdb;
-            $table_name = $wpdb->prefix . 'wc_orders';
 
-            $get_table_structure_query = "SHOW CREATE TABLE $table_name";
-            $table_structure_result = $wpdb->get_row($get_table_structure_query);
+            $order_tables = [
+//                    'wc_orders' => 'order_id',
+//                    'wc_orders_meta' => 'meta_id',
+//                    'wc_order_addresses' => 'addresses_id',
+                    'wc_order_stats' => 'order_stats_id',
+//                    'woocommerce_order_itemmeta' => 'itemmeta_id',
+//                    'woocommerce_order_items' => 'order_item_id'
+            ];
 
-            // Check if query executed successfully
-            if ($table_structure_result) {
-                // Extract the SQL query for creating the table
-                $create_table_query = $table_structure_result->{'Create Table'};
-            } else {
-                die("Error fetching table structure: " . $wpdb->last_error);
+            foreach ( $order_tables as $table_name => $table_extra_column ) {
+                global $wpdb;
+                $table_name = $wpdb->prefix . $table_name;
+
+                $get_table_structure_query = "SHOW CREATE TABLE $table_name";
+                $table_structure_result = $wpdb->get_row($get_table_structure_query);
+
+                // Check if query executed successfully
+                if ($table_structure_result) {
+                    // Extract the SQL query for creating the table
+                    $create_table_query = $table_structure_result->{'Create Table'};
+                } else {
+                    die("Error fetching table structure: " . $wpdb->last_error);
+                }
+
+                // Check connection
+                if ($remote_connection->connect_error) {
+                    die("Connection to remote database failed: " . $remote_connection->connect_error);
+                }
+
+                // Step 3: Execute query to create table in remote database
+                $create_remote_table_query = $remote_connection->query($create_table_query);
+
+                // Check if query executed successfully
+                if ($create_remote_table_query === TRUE) {
+                    if( $table_name == 'wc_order_stats') {
+//                        $alter_table_query = "ALTER TABLE {$wpdb->prefix}{$table_name} ADD COLUMN $table_extra_column VARCHAR(255)";
+                    } else {
+                        $alter_table_query = "ALTER TABLE {$wpdb->prefix}{$table_name} ADD COLUMN $table_extra_column VARCHAR(255)";
+                    }
+                    $alter_table_result = $remote_connection->query($alter_table_query);
+                    echo "<div class='updated'><p>Success: Table created successfully.</p></div>";
+                } else {
+                    echo "Error creating table in remote database: " . $remote_connection->error;
+                }
             }
-
-            // Check connection
-            if ($remote_connection->connect_error) {
-                die("Connection to remote database failed: " . $remote_connection->connect_error);
-            }
-
-            // Step 3: Execute query to create table in remote database
-            $create_remote_table_query = $remote_connection->query($create_table_query);
-
-            // Check if query executed successfully
-            if ($create_remote_table_query === TRUE) {
-                $alter_table_query = "ALTER TABLE wp_wc_orders ADD COLUMN order_id VARCHAR(255)";
-                $alter_table_result = $remote_connection->query($alter_table_query);
-                echo "<div class='updated'><p>Success: Table created successfully.</p></div>";
-            } else {
-                echo "Error creating table in remote database: " . $remote_connection->error;
-            }
-
 
             // Save form data to WordPress options
             update_option('remote_db_host', $db_host);
