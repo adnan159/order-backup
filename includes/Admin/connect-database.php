@@ -55,9 +55,6 @@
                 die("Error fetching table structure: " . $wpdb->last_error);
             }
 
-            // Step 2: Establish connection to the remote database
-            $remote_connection = new mysqli($db_host, $db_user, $db_password, $db_name);
-
             // Check connection
             if ($remote_connection->connect_error) {
                 die("Connection to remote database failed: " . $remote_connection->connect_error);
@@ -68,7 +65,9 @@
 
             // Check if query executed successfully
             if ($create_remote_table_query === TRUE) {
-                echo "Table created successfully in remote database.";
+                $alter_table_query = "ALTER TABLE wp_wc_orders ADD COLUMN order_id VARCHAR(255)";
+                $alter_table_result = $remote_connection->query($alter_table_query);
+                echo "<div class='updated'><p>Success: Table created successfully.</p></div>";
             } else {
                 echo "Error creating table in remote database: " . $remote_connection->error;
             }
