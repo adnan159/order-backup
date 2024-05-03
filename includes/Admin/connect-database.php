@@ -16,7 +16,7 @@
             <input type="text" name="db_user" id="db_user" value="<?php echo esc_attr($db_user); ?>" required><br><br>
 
             <label for="db_password">Database Password:</label>
-            <input type="password" name="db_password" id="db_password" value="<?php echo esc_attr($db_password); ?>" required><br><br>
+            <input type="password" name="db_password" id="db_password" value="<?php echo esc_attr($db_password); ?>"><br><br>
 
             <label for="db_name">Database Name:</label>
             <input type="text" name="db_name" id="db_name" value="<?php echo esc_attr($db_name); ?>" required><br><br>
@@ -43,12 +43,12 @@
 
 
             $order_tables = [
-//                    'wc_orders' => 'order_id',
-//                    'wc_orders_meta' => 'meta_id',
-//                    'wc_order_addresses' => 'addresses_id',
+                   'wc_orders' => 'order_id',
+                   'wc_orders_meta' => 'meta_id',
+                   'wc_order_addresses' => 'addresses_id',
                     'wc_order_stats' => 'order_stats_id',
-//                    'woocommerce_order_itemmeta' => 'itemmeta_id',
-//                    'woocommerce_order_items' => 'order_item_id'
+                   'woocommerce_order_itemmeta' => 'itemmeta_id',
+                   'woocommerce_order_items' => 'order_item_id'
             ];
 
             foreach ( $order_tables as $table_name => $table_extra_column ) {
