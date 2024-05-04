@@ -80,7 +80,7 @@ final class Order_Backup {
         define('Order_Backup_FILE', __FILE__);
         define('Order_Backup_DIR_PATH', plugin_dir_path(Order_Backup_FILE));
         define('Order_Backup_URL', plugin_dir_url(Order_Backup_FILE));
-        // define('ASC_WOO_CALCULATOR_ASSETS', Order_Backup_URL . 'assets');
+        define('Order_Backup_ASSETS', Order_Backup_URL . 'assets');
     }
 
     /**

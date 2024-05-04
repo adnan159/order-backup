@@ -10,8 +10,7 @@ class Menu {
         add_action('admin_menu', [$this, 'admin_menu']);
     }
 
-    public function admin_menu()
-    {
+    public function admin_menu() {
         add_menu_page(
             __('Backup Order', 'backup-order'),
             __('Backup Order', 'backup-order'),
