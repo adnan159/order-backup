@@ -6,8 +6,40 @@ class AdminAjax {
 
     public function __construct() {
         add_action('wp_ajax_backup_order_remote_db', [$this, 'backup_order_remote_db']);
+        add_action( 'wp_ajax_total_order_count_action', [$this, 'total_order_count_action'] );
     }
 
+    /**
+     * AJAX action to retrieve the total count of orders within a date range.
+     */
+    function total_order_count_action() {
+        // Global WordPress database access class
+        global $wpdb;
+
+        // Retrieve start and end dates from POST data
+        $start_date = $_POST['startDate'];
+        $end_date = $_POST['endDate'];
+
+        // Prepare the SQL query to count orders within the date range
+        $query = $wpdb->prepare("
+            SELECT COUNT(id)
+            FROM {$wpdb->prefix}wc_orders
+            WHERE date_created_gmt BETWEEN %s AND %s
+        ", $start_date, $end_date);
+
+        // Execute the query to get the total order count
+        $order_count = $wpdb->get_var($query);
+
+        // Send the total order count as a JSON success response
+        wp_send_json_success($order_count);
+
+        // Terminate script execution
+        wp_die();
+    }
+
+    /**
+     * Backup orders to a remote database and delete them from the local database.
+     */
     function backup_order_remote_db() {
         // Establish remote database connection
         $db_host = get_option('remote_db_host');
@@ -22,8 +54,7 @@ class AdminAjax {
             die("Connection to remote database failed: " . $remote_connection->connect_error);
         }
 
-        error_log(print_r($_POST, true));
-
+        // Get start and end dates from POST data
         $order_start_date = $_POST['startDate'];
         $order_end_date = $_POST['endDate'];
 
@@ -56,20 +87,35 @@ class AdminAjax {
             
             // Prepare and bind parameters
             $stmt = $remote_connection->prepare($sql);
-            $stmt->bind_param("sssisss",$id, $status, $currency, $type, $total_amount,$billing_email, $order_notes );
+            $stmt->bind_param("sssisss", $id, $status, $currency, $type, $total_amount, $billing_email, $order_notes );
             
             // Execute the statement
             if ($stmt->execute()) {
-                echo "Data inserted successfully.";
-                wc_delete_order_item( absint( $id ) );
+                // Delete the order from the local database
+                global $wpdb;
+                $table_name = $wpdb->prefix . 'wc_orders';
+                $query = $wpdb->prepare("DELETE FROM $table_name WHERE id = %d", $id);
+                $deleted = $wpdb->query($query);
+
+                // Log deletion result
+                error_log(print_r($deleted, true));
             } else {
-                echo "Error inserting data: " . $stmt->error;
+                // Log SQL execution error
+                error_log($stmt->error);
             }
             
-            // Close statement and connection
+            // Close statement
             $stmt->close();
         }
         
+        // Close remote connection
         $remote_connection->close();
+
+        // Send success response
+        wp_send_json_success(true);
+
+        // Terminate execution
+        wp_die();
     }
+
 }
