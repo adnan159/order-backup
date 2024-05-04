@@ -1,7 +1,6 @@
 <?php
 
 namespace Order\Backup\Admin;
-
 /**
  * The menu handler class
  */
@@ -20,6 +19,15 @@ class Menu {
             'backup-order',
             [$this, 'plugin_page']
         );
+
+        add_submenu_page(
+            'backup-order', 
+            __('Sync', 'backup-order'), 
+            __('Sync', 'backup-order'), 
+            'manage_options', 
+            'order-sync',
+            [ $this, 'backup_order_sync' ]  
+        );
     }
 
     /**
@@ -27,5 +35,9 @@ class Menu {
      */
     public function plugin_page() {
         require_once 'connect-database.php';
+    }
+
+    public function backup_order_sync() {
+        new SyncOrder();
     }
 }

@@ -106,8 +106,6 @@ final class Order_Backup {
         if (is_admin()) {
             new Order\Backup\Admin();
         }
-
-        // new AsCode\WooCalculator\Front();
     }
 }
 
