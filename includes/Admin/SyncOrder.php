@@ -9,7 +9,7 @@ class SyncOrder {
     }
 
     function load_oder_sync_page() {
-        echo Order_Backup_ASSETS;
+        require_once 'views/backup-page-view.php';
     }
 
     // public function sync_order(){

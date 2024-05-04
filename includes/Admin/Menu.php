@@ -33,7 +33,7 @@ class Menu {
      * Callback function to display the plugin page.
      */
     public function plugin_page() {
-        require_once 'connect-database.php';
+        require_once 'views/connect-database.php';
     }
 
     public function backup_order_sync() {
